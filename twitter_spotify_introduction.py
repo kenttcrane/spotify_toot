@@ -29,9 +29,7 @@ for tweet in tweets:
         continue
     if 'spotify' not in tweet['entities']['urls'][0]['expanded_url']:
         continue
-    root_id = root_tweet_id(t, tweet)
-    # if root_id == SPOTIFY_ROOT_TWEET_ID:
-    if root_id == SPOTIFY_ROOT_TWEET_ID:
+    if is_node(t, tweet):
         parent = tweet
         break
 

@@ -2,6 +2,8 @@ config.py
 config.txt
 test.py
 .cache
+*.db
+twitter_get_new_token.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
