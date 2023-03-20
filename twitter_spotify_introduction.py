@@ -1,5 +1,7 @@
 import sys
 import datetime
+import sqlite3
+import time
 from twitter import *
 from spotipy import *
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -93,9 +95,20 @@ while True:
         break
     else:
         print('input the information again.')
-    
+
 #tweet
 print('-'*30)
 print(text)
 print('-'*30)
 t.statuses.update(status=text, in_reply_to_status_id=parent['id'])
+
+time.sleep(1)
+
+# insert to database
+conn = sqlite3.connect(dbname)
+cur = conn.cursor()
+
+tweet = t.statuses.user_timeline(screen_name='kenttcrane', count=1)[0]
+insert_music_tweet(cur, tweet)
+conn.commit()
+conn.close()

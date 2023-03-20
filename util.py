@@ -35,6 +35,8 @@ def is_node(t, tweet):
         if result:
             for tweet in tweets:
                 insert_music_tweet(cur, tweet)
+            conn.commit()
+            conn.close()
             return True
         else:
             tweets.insert(0, tweet)
@@ -42,6 +44,7 @@ def is_node(t, tweet):
                 parent_id = tweet['in_reply_to_status_id']
                 tweet = t.statuses.show(_id=parent_id)
             else:
+                conn.close()
                 return False
 
 def show_dict(d):
@@ -65,12 +68,14 @@ def insert_music_tweet(cur, tweet):
     
     artists = artists.split(', ')
 
-    title.replace("'", "''")
+    title = title.replace("'", "''")
     artists = (artist.replace("'", "''") for artist in artists )
 
     url = tweet['entities']['urls'][0]['expanded_url']
 
     for artist in artists:
-        cur.execute(f'''insert into musics values \\
-            ({id}, '{date}', '{title}', '{artist}', '{url}')''')
-    
+        try:
+            cur.execute(f'''insert into musics values ({id}, '{date}', '{title}', '{artist}', '{url}')''')
+            print(f'{id}, {date}, {title}, {artist}, {url}')
+        except:
+            print(date, title, 'でおかしい')
