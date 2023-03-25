@@ -67,10 +67,10 @@ while True:
     if title == '':
         title = info['name']
 
-    print(f"artist: {info['artists'][0]['name']}")
+    print(f"artist: {', '.join([info['artists'][i]['name'] for i in range(len(info['artists']))])}")
     artist = input('If the artist is correct, press enter. If not, type the correct artist.')
     if artist == '':
-        artist = info['artists'][0]['name']
+        artist = ', '.join([info['artists'][i]['name'] for i in range(len(info['artists']))])
 
     dt = datetime.datetime.now()
     month = dt.month
