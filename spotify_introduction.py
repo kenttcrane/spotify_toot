@@ -2,40 +2,52 @@ import sys
 import datetime
 import sqlite3
 import time
-from twitter import *
+from mastodon import Mastodon
 from spotipy import *
 from spotipy.oauth2 import SpotifyClientCredentials
 
 from config import *
 from util import *
 
-config_txt = 'config.txt'
-with open(config_txt, 'r') as f:
-    twitter_token, twitter_token_secret, spotify_id, spotify_secret = (l.strip() for l in f.readlines())
+ROOT_ID = 110186940072440364
 
-t = Twitter(
-    auth=OAuth(
-        twitter_token,
-        twitter_token_secret,
-        consumer_key,
-        consumer_secret,
-    )
+with open('config.txt', 'r', encoding='utf-8') as f:
+    lines = f.readlines()
+
+    spotify_id = lines[2].strip()
+    spotify_secret = lines[3].strip()
+
+with open('config2.txt', 'r', encoding='utf-8') as f:
+    lines = f.readlines()
+
+    client_id = lines[0].split()[1]
+    client_secret = lines[1].split()[1]
+    access_token = lines[2].split()[1]
+
+
+api = Mastodon(
+    api_base_url = 'https://mstdn.jp',
+    client_id = client_id,
+    client_secret = client_secret,
+    access_token = access_token
 )
 
 # search parent
-tweets = t.statuses.user_timeline(screen_name='kenttcrane', count=100)
 parent = None
+toots = api.timeline_list(14413, limit=100)
 
-for tweet in tweets:
-    if not tweet['entities']['urls']:
-        continue
-    if 'spotify' not in tweet['entities']['urls'][0]['expanded_url']:
-        continue
-    if is_node(t, tweet):
-        parent = tweet
+for toot in toots:
+    if toot['id'] == ROOT_ID:
+        parent = toot
         break
-
-# parent = t.statuses.show(_id=TEST_TWEET_ID)
+    if not toot['card']:
+        continue
+    if 'spotify' not in toot['card']['url']:
+        continue
+    ancestor_ids = [ancestor['id'] for ancestor in api.status_context(toot['id'])['ancestors']]
+    if ROOT_ID in ancestor_ids:
+        parent = toot
+        break
 
 if parent == None:
     print('No parent.')
@@ -100,7 +112,7 @@ while True:
 print('-'*30)
 print(text)
 print('-'*30)
-t.statuses.update(status=text, in_reply_to_status_id=parent['id'])
+api.status_post(text, in_reply_to_id=parent['id'])
 
 time.sleep(1)
 
@@ -108,7 +120,7 @@ time.sleep(1)
 conn = sqlite3.connect(dbname)
 cur = conn.cursor()
 
-tweet = t.statuses.user_timeline(screen_name='kenttcrane', count=1)[0]
-insert_music_tweet(cur, tweet)
+toot = api.timeline_list(14413, limit=1)[0]
+insert_music(cur, toot['id'], text)
 conn.commit()
 conn.close()
