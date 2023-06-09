@@ -2,6 +2,7 @@ import sys
 import datetime
 import sqlite3
 import time
+import os
 from mastodon import Mastodon
 from spotipy import *
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -9,32 +10,26 @@ from spotipy.oauth2 import SpotifyClientCredentials
 from config import *
 from util import *
 
-ROOT_ID = 110186940072440364
+LIST_SELF = 14413 # 自分のみを入れたリストのID
+ROOT_ID = 110186940072440364 # スレッドの一番上となるトゥートのID
 
-with open('config.txt', 'r', encoding='utf-8') as f:
-    lines = f.readlines()
+spotify_id = os.environ['SPOTIFY_CLIENT_ID']
+spotify_secret = os.environ['SPOTIFY_CLIENT_SECRET']
 
-    spotify_id = lines[2].strip()
-    spotify_secret = lines[3].strip()
-
-with open('config2.txt', 'r', encoding='utf-8') as f:
-    lines = f.readlines()
-
-    client_id = lines[0].split()[1]
-    client_secret = lines[1].split()[1]
-    access_token = lines[2].split()[1]
-
+mastodon_id = os.environ['MASTODON_CLIENT_ID']
+mastodon_secret = os.environ['MASTODON_CLIENT_SECRET']
+mastodon_access_token = os.environ['MASTODON_ACCESS_TOKEN']
 
 api = Mastodon(
     api_base_url = 'https://mstdn.jp',
-    client_id = client_id,
-    client_secret = client_secret,
-    access_token = access_token
+    client_id = mastodon_id,
+    client_secret = mastodon_secret,
+    access_token = mastodon_access_token
 )
 
 # search parent
 parent = None
-toots = api.timeline_list(14413, limit=100)
+toots = api.timeline_list(LIST_SELF, limit=500) # 新しい順
 
 for toot in toots:
     if toot['id'] == ROOT_ID:
@@ -72,7 +67,6 @@ while True:
         pass
 
 # check track information
-# show_dict(info)
 while True:
     print(f"title: {info['name']}")
     title = input('If the title is correct, press enter. If not, type the correct title.')
@@ -91,10 +85,10 @@ while True:
     
     multi_today = (input('multiple introduction today? (y/n): ') == 'y')
     if multi_today:
-        num = input('input the tweet number: ')
+        num = input('input the toot number: ')
         date_str += ' (' + num + ')'
 
-    # check tweet text
+    # check toot text
     text = date_str + '\n' + title + ' - ' + artist + '\n' + url
     while True:
         print(f'text: "{text}"')
@@ -120,7 +114,7 @@ time.sleep(1)
 conn = sqlite3.connect(dbname)
 cur = conn.cursor()
 
-toot = api.timeline_list(14413, limit=1)[0]
+toot = api.timeline_list(LIST_SELF, limit=1)[0]
 insert_music(cur, toot['id'], text)
 conn.commit()
 conn.close()
