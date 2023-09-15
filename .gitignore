@@ -1,13 +1,10 @@
-config.py
-config.txt
-config2.txt
-test.py
+/tests/*
 .cache
-*.db
-twitter_get_new_token.py
+/data/*.db
+!/data/sample.db
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
+/__pycache__/
 *.py[cod]
 *$py.class
 

@@ -1,0 +1,11 @@
+import os
+
+SPOTIFY_ID = os.environ['SPOTIFY_CLIENT_ID']
+SPOTIFY_SECRET = os.environ['SPOTIFY_CLIENT_SECRET']
+
+MASTODON_ID = os.environ['MASTODON_CLIENT_ID']
+MASTODON_SECRET = os.environ['MASTODON_CLIENT_SECRET']
+MASTODON_ACCESS_TOKEN = os.environ['MASTODON_ACCESS_TOKEN']
+
+LIST_SELF = 14413 # 自分のみを入れたリストのID
+DB_NAME = 'data/music.db'
