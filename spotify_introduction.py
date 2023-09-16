@@ -9,6 +9,7 @@ from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyClientCredentials
 
 from libs.util import show_dict, insert_music
+from libs.music_info import MusicInfo
 from config.config import (
     SPOTIFY_ID,
     SPOTIFY_SECRET,
@@ -42,13 +43,14 @@ while True:
         break
     print('type valid number')
 relationship = relationships[playlist_num]
-root_toot_id = relationship[1]
-tbl_name = relationship[2]
+
+relationship_id_str = relationship[0]
+root_toot_id = relationship[2]
 playlist_url = relationship[3]
 
 # search parent
 parent = None
-toots = mstdn.timeline_list(LIST_SELF, limit=200) # 新しい順
+toots = mstdn.timeline_list(LIST_SELF, limit=200)  # 新しい順
 
 for toot in toots:
     if toot['id'] == root_toot_id:
@@ -108,12 +110,18 @@ while True:
         num = input('input the toot number: ')
         date_str += ' (' + num + ')'
 
+    music_info = MusicInfo(
+        {
+            'date': date_str,
+            'title': title,
+            'artists': artists,
+            'music_url': url,
+            'playlist_url': playlist_url
+        }
+    )
+
     # check toot text
-    text = ''
-    if playlist_num == 0:
-        text += date_str + '\n'
-    text += title + ' - ' + artist + '\n' + url + '\n\n'\
-           + 'プレイリストはこちら↓' + '\n' + playlist_url
+    text = music_info.generate_message(f'data/template_{relationship_id_str}.txt')
     while True:
         print(f'text: "{text}"')
         ans = input('OK? (y/n)')
@@ -133,8 +141,7 @@ toot = mstdn.status_post(text, in_reply_to_id=parent['id'])
 time.sleep(1)
 
 # insert to database
-music_data = {'date': date_str, 'title': title, 'artists': artists, 'url': url}
-
-insert_music(cur, tbl_name, toot['id'], music_data)
+tbl_name = f'musics_{relationship_id_str}'
+insert_music(cur, tbl_name, toot['id'], music_info.data)
 conn.commit()
 conn.close()

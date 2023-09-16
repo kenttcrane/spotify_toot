@@ -29,7 +29,7 @@ def insert_music(cur: Cursor, tbl_name: str, id: int, music_data: dict) -> None:
     date = music_data['date']
     title = music_data['title']
     artists = music_data['artists']
-    url = music_data['url'].split('?')[0]
+    url = music_data['music_url'].split('?')[0]
 
     # SQLに埋め込む際の文字列処理
     title = title.replace("'", "''")

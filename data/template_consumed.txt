@@ -1,0 +1,6 @@
+{{date}}
+{{title}} - {{artists_str}}
+{{music_url}}
+
+プレイリストはこちら↓
+{{playlist_url}}
