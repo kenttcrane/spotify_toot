@@ -1,20 +1,20 @@
 import sqlite3
 from config.config import DB_NAME
 
+print(f'open {DB_NAME}')
+print()
+
+tbls = {
+    'musics_xxx': 'id integer, date text, title text, artist text, url text, primary key (id, artist)',
+    'playlist': 'id text primary key, title text, root_toot_id integer, spotify_url text'
+}
+
 conn = sqlite3.connect(DB_NAME)
-
-while True:
-    tbl_name = input('name of table to create: ')
-    ans = input(f'OK? (y/n)')
-    if ans == 'y':
-        break
-
-while True:
-    columns = input('columns (ex. "id integer primary key, name text"): ')
-    ans = input(f'OK? (y/n)')
-    if ans == 'y':
-        break
-
 cur = conn.cursor()
-cur.execute(f'create table {tbl_name} ({columns})')
+
+for tbl_name, columns in tbls.items():
+    query = f'create table if not exists {tbl_name} ({columns})'
+    print(query)
+    cur.execute(query)
+
 conn.close()
