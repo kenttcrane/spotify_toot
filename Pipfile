@@ -8,6 +8,8 @@ twitter = "*"
 spotipy = "*"
 numpy = "*"
 "mastodon.py" = "*"
+google = "*"
+firebase-admin = "*"
 
 [dev-packages]
 

@@ -1,4 +1,4 @@
-{{date}}
+{{date}}{{multi_num}}
 {{title}} - {{artists_str}}
 {{music_url}}
 

@@ -7,6 +7,8 @@ from mastodon import Mastodon
 from spotipy import Spotify
 from spotipy.exceptions import SpotifyException
 from spotipy.oauth2 import SpotifyClientCredentials
+import firebase_admin
+from firebase_admin import firestore
 
 from libs.util import show_dict, insert_music
 from libs.music_info import MusicInfo
@@ -28,14 +30,15 @@ mstdn = Mastodon(
 )
 
 # choose table
-conn = sqlite3.connect(DB_NAME)
-cur = conn.cursor()
+# 環境変数'GOOGLE_APPLICATION_CREDENTIALS'にFirebaseで取得したservice account（jsonファイル）のパスを入れる
+firebase_admin.initialize_app()
+db = firestore.client()
 
-cur.execute('select * from playlist')
-relationships = cur.fetchall()
+doc_ref = db.collection('playlist')
+relationships = list(doc_ref.stream())
 
 for i, relationship in enumerate(relationships):
-    print(f'{i + 1}: {relationship[0]}')
+    print(f'''{i + 1}: {relationship.get('id')}''')
 while True:
     playlist_num = int(input('type the number of playlist: '))
     playlist_num -= 1
@@ -44,9 +47,9 @@ while True:
     print('type valid number')
 relationship = relationships[playlist_num]
 
-relationship_id_str = relationship[0]
-root_toot_id = relationship[2]
-playlist_url = relationship[3]
+relationship_id_str = relationship.get('id')
+root_toot_id = int(relationship.get('root_toot_id'))
+playlist_url = relationship.get('spotify_url')
 
 # search parent
 parent = None
@@ -105,14 +108,16 @@ while True:
     day = dt.day - (1 if dt.hour < 5 else 0)
     date_str = str(month) + '/' + str(day)
 
+    multi_num = ''
     multi_today = input('multiple introduction today? (y/n): ') == 'y'
     if multi_today:
         num = input('input the toot number: ')
-        date_str += ' (' + num + ')'
+        multi_num = ' (' + num + ')'
 
     music_info = MusicInfo(
         {
             'date': date_str,
+            'multi_num': multi_num,
             'title': title,
             'artists': artists,
             'music_url': url,
@@ -142,6 +147,4 @@ time.sleep(1)
 
 # insert to database
 tbl_name = f'musics_{relationship_id_str}'
-insert_music(cur, tbl_name, toot['id'], music_info.data)
-conn.commit()
-conn.close()
+insert_music(db, tbl_name, str(toot['id']), music_info.data)
