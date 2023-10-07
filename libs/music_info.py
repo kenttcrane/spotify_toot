@@ -1,4 +1,8 @@
-import re
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+)
+
 
 class MusicInfo:
     data: dict
@@ -9,15 +13,8 @@ class MusicInfo:
         if not 'artists_str' in self.data:
             self.data['artists_str'] = ', '.join(self.data['artists'])
 
-    def _replace_param(self, txt: str, param: str) -> str:
-        param_name = param.strip('{} ')
-        txt = txt.replace(param, self.data[param_name])
-        return txt
-    
     def generate_message(self, filename_txt: str) -> str:
-        with open(filename_txt, 'r') as f:
-            message = f.read()
-            replace_list = re.findall('{{.*?}}', message)
-            for param in replace_list:
-                message = self._replace_param(message, param)
+        env = Environment(loader=FileSystemLoader('./', encoding='utf8'))
+        tmpl = env.get_template(filename_txt)
+        message = tmpl.render(self.data)
         return message

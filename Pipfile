@@ -10,6 +10,7 @@ numpy = "*"
 "mastodon.py" = "*"
 google = "*"
 firebase-admin = "*"
+jinja2 = "*"
 
 [dev-packages]
 
