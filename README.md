@@ -15,7 +15,7 @@ Spotifyの楽曲情報をMastodonに投稿するプログラムです。楽曲�
   * id (String) ("consumed"など自分の好きなIDをつけてください)
   * root_toot_id (String) (Mastodonのトゥートのスレッドの一番上（根？）になるトゥートのid)
   * spotify_url (String) (SpotifyのプレイリストのURL)
-  * title (String) (メモ用、spotifyのリスト名を入れてます)
+  * title (String) (メモ用、Spotifyのリスト名を入れてます)
 * **musics_(playlistのid)**
   * artist (list\[String\])
   * date (String)
@@ -29,7 +29,6 @@ connfig/config.pyで環境変数を取得しています。以下を環境変数
 * MASTODON_CLIENT_ID
 * MASTODON_CLIENT_SECRET
 * MASTODON_ACCESS_TOKEN
-* LIST_SELF
 
 また、spotify_introduction.pyに記載の通り、環境変数'GOOGLE_APPLICATION_CREDENTIALS'にFirebaseで取得したservice account（jsonファイル）のパスを入れてください。
 

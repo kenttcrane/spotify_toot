@@ -17,9 +17,7 @@ from config.config import (
     SPOTIFY_SECRET,
     MASTODON_ID,
     MASTODON_SECRET,
-    MASTODON_ACCESS_TOKEN,
-    LIST_SELF,
-    DB_NAME
+    MASTODON_ACCESS_TOKEN
 )
 
 mstdn = Mastodon(
@@ -51,9 +49,12 @@ relationship_id_str = relationship.get('id')
 root_toot_id = int(relationship.get('root_toot_id'))
 playlist_url = relationship.get('spotify_url')
 
+# get mastodon user id
+mastodon_user_id = mstdn.me()["id"]
+
 # search parent
 parent = None
-toots = mstdn.timeline_list(LIST_SELF, limit=200)  # 新しい順
+toots = mstdn.account_statuses(mastodon_user_id, limit=200)  # 新しい順
 
 for toot in toots:
     if toot['id'] == root_toot_id:
